@@ -18,6 +18,9 @@ app.set("view engine", "handlebars");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: false}));
 
+//
+app.use(bodyParser.json())
+
 // Setup cookie-parser
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
@@ -53,6 +56,8 @@ app.use(voteRouter);
 // Setup API routes
 const apiRouter = require("./routes/api-routes.js");
 app.use(apiRouter);
+
+
 
 // Start the server running.
 app.listen(port, function () {

@@ -13,7 +13,7 @@ CREATE TABLE users (
 INSERT INTO "users" VALUES(1,'XeroFounder','$2b$10$XTa37RWjSnaO87oB1udvueZW0w6cj/l3KjTI4Yled0miNpoiWoTqq','Rodney','Drury','1967-06-23','01','',0,'');
 INSERT INTO "users" VALUES(2,'salesForceField','$2b$10$XTa37RWjSnaO87oB1udvueZW0w6cj/l3KjTI4Yled0miNpoiWoTqq','Marc','Benioff','1964-09-25','02',NULL,0,'I made sales force and lots of $');
 INSERT INTO "users" VALUES(3,'datacomDude','$2b$10$XTa37RWjSnaO87oB1udvueZW0w6cj/l3KjTI4Yled0miNpoiWoTqq','Bernard','Battersby','1990-01-01','03','',0,'this user does not yet have an introduction');
-INSERT INTO "users" VALUES(4,'enigmaCracker','$2b$10$rQAvdV7Ka58JUxUx5siKsusBcEF71QDmfsChx6B39reCfD2.FdxbS','Alan','Turing','1912-06-23','01','780005a1-b8c4-42e3-86d7-34722f6d9cb3',0,'');
+INSERT INTO "users" VALUES(4,'enigmaCracker','$2b$10$rQAvdV7Ka58JUxUx5siKsusBcEF71QDmfsChx6B39reCfD2.FdxbS','Alan','Turing','1912-06-23','01','780005a1-b8c4-42e3-86d7-34722f6d9cb3',2,'');
 INSERT INTO "users" VALUES(5,'theAdmiral','$2b$10$rQAvdV7Ka58JUxUx5siKsusBcEF71QDmfsChx6B39reCfD2.FdxbS','Grace','Hopper','1906-12-09','02',NULL,0,'');
 INSERT INTO "users" VALUES(6,'don','$2b$10$XTa37RWjSnaO87oB1udvueZW0w6cj/l3KjTI4Yled0miNpoiWoTqq','Donald','Knuth','1938-01-10','03',NULL,0,'');
 INSERT INTO "users" VALUES(7,'SerkoGetsYouThere','$2b$10$XTa37RWjSnaO87oB1udvueZW0w6cj/l3KjTI4Yled0miNpoiWoTqq','Bob','Smith','1990-01-01','03',NULL,0,'this user does not yet have an introduction');

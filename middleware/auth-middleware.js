@@ -33,13 +33,12 @@ function verifyAuthenticatedWithAlertOnly(req, res, next) {
     }
 }
 
-async function apiVerifyAdminIdentity(req, res, next) {
-        const user = await userDao.retrieveUserWithAuthToken(req.query.authToken); 
-        if (user.adminstratorLevel>1) {
+async function apiVerifyAuthenticated(req, res, next) {
+        if (res.locals.user) {
             next();
         }
         else {
-            //log access denied
+            res.status(401).send();
         }
 }
 
@@ -48,5 +47,5 @@ module.exports = {
     addUserToLocals,
     verifyAuthenticated,
     verifyAuthenticatedWithAlertOnly,
-    apiVerifyAdminIdentity
+    apiVerifyAuthenticated
 }

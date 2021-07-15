@@ -162,7 +162,7 @@ async function checkUserAdminStatusByAuthToken(authToken) {
 async function userReport() {
     const db = await dbPromise;
     try {
-        return await db.all(SQL`SELECT userID, username, firstName, lastName, dateOfBirth, avatarImage, introduction, COUNT(articleID) AS 'Number of Articles' 
+        return await db.all(SQL`SELECT userID, username, firstName, lastName, dateOfBirth, avatarImage, introduction, COUNT(articleID) AS 'numberOfArticles' 
         FROM users 
         LEFT JOIN articles 
         ON users.userID = articles.authorID
@@ -171,6 +171,7 @@ async function userReport() {
         console.error("Error "+e.name+" in function [userReport] in [user-dao]"+e.message);
     }
 }
+
 
 module.exports = {
     createUser,

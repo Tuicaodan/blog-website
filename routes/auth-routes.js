@@ -50,8 +50,11 @@ router.get("/login", function(req, res) {
 
 //used uuid as authToken
 router.post("/login", async function (req, res) {
+    console.log(req.body)
     const username = req.body.username;
     const password = req.body.password;
+    console.log(username)
+    console.log(password)
 
     const passwordCorrect = await passwordSec.checkHashPassword(username, password); 
     

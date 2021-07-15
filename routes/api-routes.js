@@ -5,7 +5,7 @@ const userDao = require("../modules/user-dao.js");
 const commentDao = require("../modules/comment-dao.js");
 const articleDao = require("../modules/article-dao.js");
 const passwordSec = require("../modules/passwordSec.js");
-const { verifyAuthenticated } = require("../middleware/auth-middleware.js");
+const { apiVerifyAuthenticated } = require("../middleware/auth-middleware.js");
 
 /*
 API general route
@@ -16,6 +16,7 @@ router.get("/api", async function (req, res) {
     res.status(200).send('this is the 200 request page for API');
 });
 
+
 /*
 * API for logging in
 * Can be tested from powershell with 
@@ -25,38 +26,16 @@ router.post("/api/login", async function (req, res) {
     const username = req.body.username;
     const password = req.body.password;
     const passwordCorrect = await passwordSec.checkHashPassword(username, password);
-
     if (passwordCorrect) {
         const user = await userDao.retrieveUserByUsername(username);
         const authToken = uuid();
         user.authToken = authToken;
         await userDao.updateUser(user);
-        res.header('authToken', authToken)
-        res.status(204).send("login successful");
+        res.cookie("authToken", authToken);
+        res.status(204).send();
     } else {
-        res.status(401).send("Login failed.");
+        res.status(401).send();
     }
-});
-
-/*
-* Logs a user out, requires the userID and authToken to match in Get request, see example below
-* Invoke-WebRequest -uri "http://localhost:3000/api/logout?userID=4&authToken=a9e846b2-8ecd-4f0f-8467-f2db57e48c3c"
-*/
-router.get("/api/logout", async function (req, res) {
-    if (req.query.authToken && req.query.userID) {
-        const authToken = req.query.authToken;
-        const user = await userDao.retrieveUserByUserID(req.query.userID);
-        if (user.authToken==authToken) {
-            user.authToken = null;
-            await userDao.updateUser(user);
-            res.status(204).send("Logout Successful");
-    }       else {
-            res.status(401).send("Logout failed");
-        }
-    } else {
-        res.status(401).send("Logout failed");
-    }
-    
 });
 
 /*
@@ -64,49 +43,44 @@ router.get("/api/logout", async function (req, res) {
 * Invoke-WebRequest -uri "http://localhost:3000/api/users?userID=4&authToken=a9e846b2-8ecd-4f0f-8467-f2db57e48c3c"
 */
 
-router.get("/api/users", async function (req, res) {
-    if (req.query.authToken && req.query.userID) {
-        const authToken = req.query.authToken;
-        const user = await userDao.retrieveUserByUserID(req.query.userID);
-        if (user.authToken==authToken) {
-            const adminstratorLevel = await userDao.checkUserAdminStatusByAuthToken(user.authToken);
-            if (adminstratorLevel >=2 ) {
-                const userReport = await userDao.userReport();
-                res.status(200).send(userReport);
-            } else {
-                res.status(401).send("error, users could not be retrieved");
-                }
-        } else {
-            res.status(401).send("error, users could not be retrieved");
-        }
-    }
+router.get("/api/users", apiVerifyAuthenticated, async function (req, res) {    
+    const user = res.locals.user;    
+    const adminstratorLevel = user.adminstratorLevel;
+    if (adminstratorLevel >=2 ) {
+        const userReport = await userDao.userReport();
+        res.json(userReport)
+    } else {
+        res.status(401).send("error, users could not be retrieved");
+    }    
+});
+
+/*
+* Logs a user out, requires the userID and authToken to match in Get request, see example below
+* Invoke-WebRequest -uri "http://localhost:3000/api/logout?userID=4&authToken=a9e846b2-8ecd-4f0f-8467-f2db57e48c3c"
+*/
+router.get("/api/logout", apiVerifyAuthenticated,  async function (req, res) {  
+    const user = res.locals.user; 
+    user.authToken = "";
+    await userDao.updateUser(user);
+    res.status(204).send();             
 });
 
 /*API For deletion of a user
 * Invoke-WebRequest -uri "http://localhost:3000/api/users/1?userID=4&authToken=a9e846b2-8ecd-4f0f-8467-f2db57e48c3c" -Method 'DELETE'
 */
 
-router.delete("/api/users/:userID", async function (req, res) {
-    if (req.query.authToken && req.query.userID) {
-        const authToken = req.query.authToken;
-        const user = await userDao.retrieveUserByUserID(req.query.userID);
-        const targetUser = req.params.userID;
-        console.log(req.params);
-        console.log("aiming to delete "+targetUser);
-        if (user.authToken==authToken) {
-            const adminstratorLevel = await userDao.checkUserAdminStatusByAuthToken(user.authToken);
-            if (adminstratorLevel >=2 ) {
-                await commentDao.updateCommentsAfterUserAccountDelete(targetUser);
-                await articleDao.updateArticlesAfterUserAccountDelete(targetUser);
-                await userDao.deleteUser(targetUser);
-                res.status(204).send("user deleted");
-            } else {
-                res.status(401).send("error, users could not be retrieved");
-                }
-        } else {
-            res.status(401).send("error, users could not be retrieved");
-        }
-    }
+router.delete("/api/users/:userID", apiVerifyAuthenticated, async function (req, res) {
+    const user = res.locals.user;
+    const targetUser = req.params.userID;
+    if (user.userID != parseInt(targetUser)) {
+        const adminstratorLevel = user.adminstratorLevel;
+        if (adminstratorLevel >= 2) {
+            await commentDao.updateCommentsAfterUserAccountDelete(targetUser);
+            await articleDao.updateArticlesAfterUserAccountDelete(targetUser);
+            await userDao.deleteUser(targetUser);
+            res.status(204).send("user deleted");
+        } 
+    } 
 });
 
 //this must be the last to prevent blocking desired pages as it 
